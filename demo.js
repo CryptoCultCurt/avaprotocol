@@ -4,61 +4,116 @@ const sdk = require('./sdk');
 const privateKey = process.env.PRIVATE_KEY // Make sure to provide your private key with or without the '0x' prefix
 const env = process.env.env || "staging"
 
+async function listTasks(token) {
+    const tasks = await sdk.listTasks(token);
+    if (tasks.success) {
+        console.log(`listTasks: `)
+        tasks.data.forEach(task => {
+            console.log(`   task id    : ${task.id}`);
+            console.log(`   task status: ${task.status}\n`);
+        });
+    } else {
+        console.log(`Error listing tasks: ${tasks.error}`);
+    }
+}
+
+async function getWallet(owner, token) {
+    const wallet = await sdk.getWallet(owner, token);
+    if (wallet.success) {   
+        console.log(`wallet from getWallet: `)
+        console.log(`   Smart Wallet: ${wallet.data.smart_account_address}`);
+        console.log(`   Nonce       : ${wallet.data.nonce}`);
+    } else {
+        console.log(`Error getting wallet: ${wallet.error}`);
+    }
+}
+
+async function createTask(owner, token) {
+     taskCondition = `
+      bigCmp(
+        priceChainlink("${sdk.config[env].ORACLE_PRICE_CONTRACT}"),
+        toBigInt("10000")
+      ) > 0`
+    const taskResult= await sdk.createTask({
+        token,
+        taskType: sdk.TaskType.CONTRACTEXECUTIONTASK,
+        action: {
+            contract_execution: {
+                contract_address: sdk.config[env].TEST_TRANSFER_TOKEN,
+            }
+        },
+        trigger: {
+            trigger_type: sdk.TriggerType.EXPRESSIONTRIGGER,
+            expression: {
+               taskCondition
+            },
+        },
+        start_at: Math.floor(Date.now() / 1000) + 30,
+        expired_at: Math.floor(Date.now() / 1000 + 3600 * 24 * 30),
+        memo: `Demo Example task!`
+    })
+    if (taskResult.success) {
+        console.log(`Task created: ${taskResult.data.id}`)
+        return taskResult.data.id;
+    } else {
+        console.log(`Error creating task: ${taskResult.error}`);
+    }
+}
+
+async function getTask(token, taskId) {
+    const task = await sdk.getTask(token, taskId);
+    if (task.success) {
+        console.log(`task ${taskId} from getTask: `)
+        console.log(task.data);
+    } else {
+        console.log(`Error getting task: ${task.error}`);
+    }
+}
+
+async function cancelTask(token, taskId) {
+    const task = await sdk.cancelTask(token, taskId);
+    if (task.success) {
+        console.log(`task ${taskId} canceled(${task.data.value}) `)
+    } else {
+        console.log(`Error canceling task: ${task.error}`);
+    }
+}
+
+async function deleteTask(token, taskId) {
+    const task = await sdk.deleteTask(token, taskId);
+    if (task.success) {
+        console.log(`task ${taskId} deleted(${task.data.value}) `)
+    } else {
+        console.log(`Error deleting task: ${task.error}`);
+    }
+}
 
 const main = async () => {
     // generate a token without signing.  in production a UI should be used to sign for a token
-    const { owner, token } = await sdk.generateApiToken(privateKey);
+    const results = await sdk.generateApiToken(privateKey);
+    if (results.error) {
+        console.log(`Error generating token: ${results.error}`);
+        return;
+    }
+    const { owner, token } = results.data;
+   
+    console.log(`running demos for wallet: ${owner} in env: ${env}`)
 
-    // const tasks = await sdk.listTask(token);
-    // console.log(`tasks from listTask: `)
-    // console.log(tasks);
-    // //const deleteTask = await sdk.deleteTask(0);
-    // const wallet = await sdk.getWallet(owner, token);
-    // console.log(`wallet from getWallet: `)
-    // console.log(wallet);
-    // // create task
-    // taskCondition = `
-    //   bigCmp(
-    //     priceChainlink("${sdk.config[env].ORACLE_PRICE_CONTRACT}"),
-    //     toBigInt("10000")
-    //   ) > 0`
-    // const taskResult= await sdk.createTask({
-    //     token,
-    //     taskType: sdk.TaskType.CONTRACTEXECUTIONTASK,
-    //     action: {
-    //         contract_execution: {
-    //             contract_address: sdk.config[env].TEST_TRANSFER_TOKEN,
-    //         }
-    //     },
-    //     trigger: {
-    //         trigger_type: sdk.TriggerType.EXPRESSIONTRIGGER,
-    //         expression: {
-    //            taskCondition
-    //         },
-    //     },
-    //     start_at: Math.floor(Date.now() / 1000) + 30,
-    //     expired_at: Math.floor(Date.now() / 1000 + 3600 * 24 * 30),
-    //     memo: `Demo Example task!`
-    // })
-    // console.log(`taskResult from createTask: `)
-    // console.log(taskResult);
-    // console.log(`taskId from taskResult: ${taskResult.id}`)
-    // const task = await sdk.getTask(token, taskResult.id);
-    // console.log(`task from getTask: `)
-    // console.log(task);
-    // const cancelTask = await sdk.cancelTask(token, taskResult.id);
-    // console.log(`cancelTask from cancelTask: `)
-    // console.log(cancelTask);
-    // const taskAfterCancel = await sdk.getTask(token, taskResult.id);
-    // console.log(`taskAfterCancel from getTask: `)
-    // console.log(taskAfterCancel);
-    // const deleteTask = await sdk.deleteTask(token, taskResult.id);
-    // console.log(`deleteTask from deleteTask: `)
-    // console.log(deleteTask);
-    await sdk.deleteTask(token, 9);
-    const tasksAfterDelete = await sdk.listTask(token);
-    console.log(`tasksAfterDelete from listTask: `)
-    console.log(tasksAfterDelete);
+    // list task
+    await listTasks(token);
+    // get wallet
+    await getWallet(owner, token);
+
+    // create task
+    const taskId = await createTask(owner, token);
+    // get task
+    if (taskId) {
+        await getTask(token, taskId);
+        await cancelTask(token, taskId);
+        await getTask(token, taskId);
+        await deleteTask(token, taskId);
+        await listTasks(token);
+    }
 }
 
 main();

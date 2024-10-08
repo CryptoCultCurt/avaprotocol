@@ -5,8 +5,6 @@ const { Wallet } = require('ethers')
 
 const { TaskType, TriggerType } = require('./static_codegen/avs_pb')
 
-
-
 // Load the protobuf definition
 const packageDefinition = protoLoader.loadSync('../protobuf/avs.proto', {
     keepCase: true,
@@ -45,12 +43,12 @@ const apProto = protoDescriptor.aggregator
 const client = new apProto.Aggregator(config[env].AP_AVS_RPC, grpc.credentials.createInsecure())
 
 function asyncRPC(client, method, request, metadata) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         client[method].bind(client)(request, metadata, (error, response) => {
             if (error) {
-                reject(error)
+                resolve({ error: `gRPC Error: ${error.message}` })
             } else {
-                resolve(response)
+                resolve({ data: response })
             }
         })
     })
@@ -70,71 +68,88 @@ async function createTask({ token, taskType, action, trigger, start_at, expired_
     }
 
     const result = await asyncRPC(client, 'CreateTask', request, metadata)
-    return result
+    if (result.error) {
+        return { success: false, error: result.error }
+    }
+    return { success: true, data: result.data }
 }
 
-async function listTask(token) {
-    //  const { owner, token } = await generateApiToken()
+async function listTasks(token) {
     const metadata = new grpc.Metadata()
     metadata.add('authkey', token)
     const result = await asyncRPC(client, 'ListTasks', {}, metadata);
-    return result.tasks;
+    if (result.error) {
+        return { success: false, error: result.error }
+    }
+    return { success: true, data: result.data.tasks }
 }
-
 
 async function deleteTask(token, taskId) {
     const metadata = new grpc.Metadata()
     metadata.add('authkey', token)
     const result = await asyncRPC(client, 'DeleteTask', { bytes: taskId }, metadata)
-    return result;
-  }
+    if (result.error) {
+        return { success: false, error: result.error }
+    }
+    return { success: true, data: result.data }
+}
 
 async function getKey({ owner, token, expired_at, signature }) {
     const metadata = new grpc.Metadata()
-    metadata.add('authkey',token) // Assuming PRIVATE_KEY is used as authkey
+    metadata.add('authkey', token) // Assuming PRIVATE_KEY is used as authkey
     const request = { owner, expired_at, signature }
     const result = await asyncRPC(client, 'GetKey', request, metadata)
-    return result
+    if (result.error) {
+        return { success: false, error: result.error }
+    }
+    return { success: true, data: result.data }
 }
 
 async function getWallet(owner, token) {
     const metadata = new grpc.Metadata()
     metadata.add('authkey', token)
     const result = await asyncRPC(client, 'GetSmartAccountAddress', { owner: owner }, metadata)
-    return result;
+    if (result.error) {
+        return { success: false, error: result.error }
+    }
+    return { success: true, data: result.data }
 }
 
 async function getTask(token, taskId) {
     const metadata = new grpc.Metadata()
     metadata.add('authkey', token)
     const result = await asyncRPC(client, 'GetTask', { bytes: taskId }, metadata)
-    return result;
-  }
+    if (result.error) {
+        return { success: false, error: result.error }
+    }
+    return { success: true, data: result.data }
+}
 
-  async function cancelTask(token, taskId) {
+async function cancelTask(token, taskId) {
     const metadata = new grpc.Metadata()
     metadata.add('authkey', token)
     const result = await asyncRPC(client, 'CancelTask', { bytes: taskId }, metadata)
-    return result;
-  }
+    if (result.error) {
+        return { success: false, error: result.error }
+    }
+    return { success: true, data: result.data }
+}
 
 async function generateApiToken(privateKey) {
-    // When running from frontend, we will ask user to sign this through their
-    // wallet providr
     const wallet = new Wallet(privateKey)
     const owner = wallet.address
     const expired_at = Math.floor(+new Date() / 3600 * 24)
     const message = `key request for ${wallet.address} expired at ${expired_at}`
     const signature = await signMessageWithEthers(wallet, message)
-    //console.log(`message: ${message}\nsignature: ${signature}`)
-
-    let result = await asyncRPC(client, 'GetKey', {
+    const result = await asyncRPC(client, 'GetKey', {
         owner,
         expired_at,
         signature
     }, {})
-
-    return { owner, token: result.key }
+    if (result.error) {
+        return { success: false, error: result.error }
+    }
+    return { success: true, data: { owner, token: result.data.key } }
 }
 
 module.exports = {
@@ -142,7 +157,7 @@ module.exports = {
     createTask,
     deleteTask,
     getKey,
-    listTask,
+    listTasks,
     cancelTask,
     getTask,
     getWallet,
