@@ -1,0 +1,20 @@
+{
+  "name": "avaprotocol",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "gen-ts-type": "proto-loader-gen-types --keepCase --longs=String --enums=String --defaults --oneofs --grpcLib=@grpc/grpc-js --outDir=proto/ ../protobuf/*.proto",
+    "gen-js": "grpc_tools_node_protoc --js_out=import_style=commonjs,binary:./static_codegen/ --grpc_out=grpc_js:./static_codegen/ --proto_path=../protobuf avs.proto"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.12.1",
+    "@grpc/proto-loader": "^0.7.13",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.13.3",
+    "google-protobuf": "^3.21.4"
+  }
+}
