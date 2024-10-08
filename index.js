@@ -19,7 +19,7 @@ const packageDefinition = protoLoader.loadSync('../protobuf/avs.proto', {
 
 const env = process.env.env || "staging"
 const privateKey = process.env.PRIVATE_KEY // Make sure to provide your private key with or without the '0x' prefix
-console.log(env)
+
 const config = {
   development: {
     AP_AVS_RPC: 'localhost:2206',
@@ -121,14 +121,7 @@ async function deleteTask(owner, token, taskId) {
 }
 
 
-async function getWallet(owner, token) {
-  const metadata = new grpc.Metadata()
-  metadata.add('authkey', token)
 
-  const result = await asyncRPC(client, 'GetSmartAccountAddress', { owner: owner }, metadata)
-
-  console.log("Smart wallet address for ", owner, "\n", result)
-}
 
 
 (async() => {
