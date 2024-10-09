@@ -1,4 +1,5 @@
-const sdk = require('./sdk');
+const sdk = require('../index');
+require('dotenv').config()
 
 // for testing purposes, get a token without signing
 const privateKey = process.env.PRIVATE_KEY // Make sure to provide your private key with or without the '0x' prefix
