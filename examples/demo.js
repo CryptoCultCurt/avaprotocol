@@ -1,4 +1,4 @@
-const sdk = require('../index');
+const sdk = require('ava-javascript-sdk');
 require('dotenv').config()
 
 // for testing purposes, get a token without signing

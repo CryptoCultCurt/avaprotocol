@@ -1,15 +1,15 @@
-# JavaScript SDK for Avs
+# JavaScript SDK for Ava Protocol
 
 ## Overview
 
-The JavaScript SDK for Avs is a library designed to simplify the integration of Avs services into your JavaScript applications. It provides a set of tools and functions to interact with Avs APIs, making it easier to build applications that leverage Avs capabilities.
+The JavaScript SDK for the Ava Protocol is a library designed to simplify the integration of the Ava Protocol into your JavaScript applications. It provides a set of tools and functions to interact with the Ava Protocol APIs, making it easier to build applications that leverage Ava Protocol capabilities.
 
 ## Installation
 
 To install the SDK, you can use npm, which is the recommended way to manage JavaScript packages.
 
 ```bash
-npm install avs-javascript-sdk
+npm install ava-javascript-sdk
 ```
 
 ## Usage
@@ -17,14 +17,14 @@ npm install avs-javascript-sdk
 To use the SDK in your project, you need to initialize it with a private key.  This can be stored in an .env file or set in your environment variables.
 
 ```javascript
-const sdk = require('avs-sdk');
+const sdk = require('ava-javascript-sdk');
 require('dotenv').config()
 // for testing purposes, get a token without signing
 const privateKey = process.env.PRIVATE_KEY
 const token = await sdk.generateApiToken(privateKey);
 const { owner, token } = results.data;
 
-// Now you can use the token to interact with the Avs API
+// Now you can use the token to interact with the Ava Protocol API
 
 const tasks = await sdk.listTasks(token);
 console.log(tasks);
@@ -41,7 +41,7 @@ node examples/demo.js
 
 ## Documentation
 
-For more details on how to use the SDK, please refer to the [official documentation](https://docs.avs.com).
+For more details on how to use the SDK, please refer to the [official documentation](https://avaprotocol.org/docs/ethereum/getting-started/introduction).
 
 ## License
 

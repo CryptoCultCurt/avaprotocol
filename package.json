@@ -1,7 +1,7 @@
 {
-  "name": "avs-javascript-sdk",
-  "version": "0.0.3",
-  "description": "Javascript SDK for Avs",
+  "name": "ava-javascript-sdk",
+  "version": "0.0.4",
+  "description": "Javascript SDK for Ava Protocol",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
