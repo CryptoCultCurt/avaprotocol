@@ -1,6 +1,6 @@
 {
   "name": "ava-javascript-sdk",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Javascript SDK for Ava Protocol",
   "main": "index.js",
   "scripts": {
