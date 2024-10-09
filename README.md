@@ -9,7 +9,7 @@ The JavaScript SDK for Avs is a library designed to simplify the integration of 
 To install the SDK, you can use npm, which is the recommended way to manage JavaScript packages.
 
 ```bash
-npm install *** COMING SOON ***
+npm install avs-javascript-sdk
 ```
 
 ## Usage
