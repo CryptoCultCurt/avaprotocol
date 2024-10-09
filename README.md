@@ -45,4 +45,4 @@ For more details on how to use the SDK, please refer to the [official documentat
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE.md) file for more details.
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/CryptoCultCurt/avaprotocol/blob/main/LICENSE.md) file for more details.

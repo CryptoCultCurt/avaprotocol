@@ -1,6 +1,6 @@
 {
   "name": "ava-javascript-sdk",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Javascript SDK for Ava Protocol",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,7 @@
     "gen-js": "grpc_tools_node_protoc --js_out=import_style=commonjs,binary:./static_codegen/ --grpc_out=grpc_js:./static_codegen/ --proto_path=../protobuf avs.proto"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@grpc/grpc-js": "^1.12.1",
     "@grpc/proto-loader": "^0.7.13",
